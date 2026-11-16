@@ -227,6 +227,7 @@ public class CredentialRequestorStage extends MosipVerticleAPIManager {
 			registrationStatusDto
 					.setLatestTransactionTypeCode(RegistrationTransactionTypeCode.PRINT_SERVICE.toString());
 			registrationStatusDto.setRegistrationStageName(getStageName());
+			String registrationType = registrationStatusDto.getRegistrationType();
 			JSONObject jsonObject = utilities.idrepoRetrieveIdentityByRid(regId);
 			uin = JsonUtil.getJSONValue(jsonObject, IdType.UIN.toString());
 			if (uin == null) {
@@ -275,9 +276,20 @@ public class CredentialRequestorStage extends MosipVerticleAPIManager {
 				} else {
 				    filteredPartners.removeIf(p -> "opencrvsPartner".equals(p.getId()));
 				}
-				
-				boolean isAdult = object.getTags() != null && "ADULT".equals(object.getTags().get("AGE_GROUP"));
-				
+
+				boolean isAdult = false;
+				if (RegistrationType.NEW.toString().equalsIgnoreCase(registrationType) ||
+						RegistrationType.UPDATE.toString().equalsIgnoreCase(registrationType) ||
+						RegistrationType.RENEWAL.toString().equalsIgnoreCase(registrationType)) {
+					double age = utilities.getApplicantAge(regId, object.getReg_type(),
+							ProviderStageName.CREDENTIAL_REQUESTOR);
+					if (age >= 16) {
+						isAdult = true;
+					}
+				} else {
+					isAdult = true;
+				}
+
 				Map<String, String> tags = object.getTags();
 				String userServiceType = null;
 				if (tags != null) {
@@ -285,15 +297,11 @@ public class CredentialRequestorStage extends MosipVerticleAPIManager {
 							tags.get("ID_OBJECT-userServiceType"));
 				}
 
-				boolean isAlien = "Alien New Registration".equals(userServiceType) || 
-								   "Renewal of Alien".equals(userServiceType);
+				boolean isAlien = "Alien New Registration".equals(userServiceType) ||
+								   "Renewal of Alien".equals(userServiceType) || "Alien Replacement".equals(userServiceType) || "Alien-COP".equals(userServiceType);
 
 				if ((!isAdult && !isAlien) || "DEACTIVATED".equals(object.getReg_type())) {
 					filteredPartners.removeIf(p -> "printPartner".equals(p.getId()));
-				}
-
-				if (!isAdult) {
-					filteredPartners.removeIf(p -> "digitalcardPartner".equals(p.getId()));
 				}
 				
 				for (CredentialPartner key : filteredPartners) {
