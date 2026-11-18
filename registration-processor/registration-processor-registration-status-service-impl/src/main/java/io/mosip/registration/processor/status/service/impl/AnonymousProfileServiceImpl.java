@@ -190,7 +190,6 @@ public class AnonymousProfileServiceImpl implements AnonymousProfileService {
 				getFieldValueFromMetaInfo(metaInfoMap, JsonConstant.METADATA, JsonConstant.REGISTRATIONTYPE));
 		anonymousProfileDTO.setService(anonymousProfileDTO.getProcessName());
 		anonymousProfileDTO.setProcessStage(processStage);
-		anonymousProfileDTO.setCitizenship("some citizenship");
 		anonymousProfileDTO.setStatus(statusCode);
 		anonymousProfileDTO.setDate(DateUtils.getUTCCurrentDateTimeString());
 		anonymousProfileDTO.setStartDateTime(DateUtils.getUTCCurrentDateTimeString());
@@ -242,13 +241,6 @@ public class AnonymousProfileServiceImpl implements AnonymousProfileService {
 				MappingJsonConstants.VALUE);
 		if (fieldMap.get(serviceTypeValue) != null)
 			anonymousProfileDTO.setServiceType(getLanguageBasedValueForSimpleType(fieldMap.get(serviceTypeValue), language));
-
-		// set citizenshipType
-//		String citizenshipValue = JsonUtil.getJSONValue(
-//				JsonUtil.getJSONObject(regProcessorIdentityJson, MappingJsonConstants.APPLICANT_CITIZENSHIPTYPE), MappingJsonConstants.VALUE);
-//		if (fieldMap.get(citizenshipValue) != null)
-//			anonymousProfileDTO.setCitizenship(getLanguageBasedValueForSimpleType(fieldMap.get(citizenshipValue), language));
-
 
 		// set disability
 		String disabilityValue = JsonUtil.getJSONValue(
